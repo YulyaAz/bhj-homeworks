@@ -4,7 +4,8 @@ class Game {
     this.wordElement = container.querySelector('.word');
     this.winsElement = container.querySelector('.status__wins');
     this.lossElement = container.querySelector('.status__loss');
-
+    this.timerElement = container.querySelector('.status__timer');
+    
     this.reset();
 
     this.registerEvents();
@@ -14,18 +15,38 @@ class Game {
     this.setNewWord();
     this.winsElement.textContent = 0;
     this.lossElement.textContent = 0;
+    this.timerElement.textContent = 5;
+    this.startTimer();
   }
 
   registerEvents() {
-    /*
-      TODO:
-      Написать обработчик события, который откликается
-      на каждый введённый символ.
-      В случае правильного ввода символа вызываем this.success()
-      При неправильном вводе символа - this.fail();
-      DOM-элемент текущего символа находится в свойстве this.currentSymbol.
-     */
+    document.addEventListener('keyup', (event) => {
+      if (!this.currentSymbol) return;
+      const pressedKey = event.key;
+      if (pressedKey.length > 1) return;
+      const currentChar = this.currentSymbol.textContent;
+      if (pressedKey.toLowerCase() === currentChar.toLowerCase()) {
+        this.success();
+      } else {
+        this.fail();
+    }
+  });
   }
+  
+  startTimer() {
+    clearInterval(this.timerInterval);
+    
+    this.timerInterval = setInterval(() => {
+      let timeLeft = parseInt(this.timerElement.textContent);
+      timeLeft--;
+      
+      if (timeLeft <= 0) {
+      this.fail();
+      timeLeft = 5;
+    }
+    this.timerElement.textContent = timeLeft;
+  }, 1000);
+}
 
   success() {
     if(this.currentSymbol.classList.contains("symbol_current")) this.currentSymbol.classList.remove("symbol_current");
@@ -45,7 +66,7 @@ class Game {
   }
 
   fail() {
-    if (++this.lossElement.textContent === 5) {
+    if (++this.lossElement.textContent === 3) {
       alert('Вы проиграли!');
       this.reset();
     }
@@ -90,5 +111,6 @@ class Game {
   }
 }
 
-new Game(document.getElementById('game'))
 
+
+new Game(document.getElementById('game'))
